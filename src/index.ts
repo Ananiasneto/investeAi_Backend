@@ -2,12 +2,14 @@ import express, { json, Request, Response } from "express";
 import dotenv from "dotenv";
 import authRouter from "./router/auth-router";
 import homeRouter from "./router/home-router";
+import operationRouter from "./router/operation-router";
 
 dotenv.config();
 const app = express();
 app.use(json());
 app.use(authRouter)
 app.use(homeRouter)
+app.use(operationRouter)
 app.get("/health", (req: Request, res: Response) => {
     res.status(200).send("ok!");
 });
