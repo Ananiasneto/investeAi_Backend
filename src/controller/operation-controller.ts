@@ -18,6 +18,6 @@ export async function operationController(req: Request, res: Response) {
     const operation = await operationService(operationData);
     res.status(200).send(operation);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).send(error);
   }
 }

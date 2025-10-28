@@ -2,6 +2,7 @@ import { getInvestidorById, updateInvestidor, updateInvestidorComPatrimonio } fr
 import { createTransacao } from "../repository/operation-repository";
 import { OperationModel } from "../model/models";
 import { getPreco } from "../utils/brapi";
+import { createAtivo, deleteAtivo, updateAtivo } from "../repository/ative-repository";
 
 export async function operationService(dataOperation :OperationModel) {
   const { tipo, investidorId, papel, quantidade, valor } = dataOperation;
@@ -22,9 +23,9 @@ export async function operationService(dataOperation :OperationModel) {
     const result=await createTransacao({
             tipo: "APORTE",
             valor: valor,
-            papel: null,
-            quantidade: null,
             investidorId,
+            papel:null,
+            quantidade:0
         })
 
     await updateInvestidor(investidorId,novoSaldo)
@@ -44,6 +45,15 @@ export async function operationService(dataOperation :OperationModel) {
 
     novoSaldo -= totalCompra;
     patrimonio += totalCompra;
+ const ativoExistente = investidor.ativos.find(a => a.papel === papel);
+
+    if (ativoExistente) {
+      ativoExistente.quantidade=ativoExistente.quantidade + quantidade;
+      ativoExistente.valorAquisicao= ativoExistente.valorAquisicao + totalCompra;
+      await updateAtivo(ativoExistente)
+    } else {
+      await createAtivo(papel,valor,quantidade,totalCompra,investidorId)
+    }
 
     const transacao={
       tipo,papel,quantidade,valor,investidorId
@@ -57,17 +67,26 @@ export async function operationService(dataOperation :OperationModel) {
   if (tipo.toUpperCase() === "VENDA") {
     if (!papel || !quantidade) throw new Error("Papel e quantidade obrigatórios");
     
+    const ativoExistente = investidor.ativos.find(a => a.papel === papel);
+    if (!ativoExistente || ativoExistente.quantidade < quantidade) {
+      throw new Error("Quantidade indisponível para venda");
+    }
     const valor=await getPreco(papel)
     const totalVenda = valor * quantidade;
     novoSaldo += totalVenda;
     patrimonio -= totalVenda;
-    
+     ativoExistente.quantidade=ativoExistente.quantidade-quantidade
+   if (ativoExistente.quantidade > 0) {
+  await updateAtivo(ativoExistente);
+} else {
+  await deleteAtivo(ativoExistente);
+}
      const transacao={
       tipo,
-      papel,
-      quantidade,
+      papel:ativoExistente.papel,
+      quantidade:ativoExistente.quantidade,
       valor,
-      investidorId
+      investidorId:ativoExistente.investidorId
     }
     await createTransacao(transacao);
 

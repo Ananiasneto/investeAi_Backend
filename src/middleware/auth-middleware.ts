@@ -1,5 +1,9 @@
 import { Request, Response, NextFunction } from "express";
-import jwt from "jsonwebtoken";
+import jwt, { JwtPayload } from "jsonwebtoken";
+
+interface TokenPayload extends JwtPayload {
+  userId: string;
+}
 
 export function validateToken(req: Request, res: Response, next: NextFunction) {
   const authToken = req.headers.authorization;
@@ -12,15 +16,20 @@ export function validateToken(req: Request, res: Response, next: NextFunction) {
   const token = authToken.replace("Bearer ", "");
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET) as { userId: string };
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as TokenPayload;
+    
+    if (!decoded.userId) {
+      return res.sendStatus(401);
+    }
+
     res.locals.userId = decoded.userId;
     next();
-  } catch (err) {
-    res.status(401).json(err.message);
-    return ;
+  } catch (err: any) {
+    res.status(401).json({ error: true, message: err.message });
   }
 }
-export function validateSchema(schema ) {
+
+export function validateSchema(schema: any) {
   return (req: Request, res: Response, next: NextFunction) => {
     const { error } = schema.validate(req.body);
     if (error) {
@@ -29,4 +38,3 @@ export function validateSchema(schema ) {
     next();
   };
 }
-

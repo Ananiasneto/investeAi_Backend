@@ -30,6 +30,10 @@ export async function loginUser(userExist: SignInModel) {
 
   const senha = await bcrypt.compare(userExist.senha, user.senha);
   if (!senha) throw new Error("Senha incorreta");
+  
+  if (!process.env.JWT_SECRET) {
+  throw new Error("JWT_SECRET não definido no .env");
+}
 
   const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, {
     expiresIn: "7d",

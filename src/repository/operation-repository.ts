@@ -1,4 +1,4 @@
-import { OperationModel } from "model/models";
+import { OperationModel } from "../model/models";
 import prisma from "../database/database";
 
 export async function createTransacao(transacao: OperationModel) {

@@ -1,12 +1,14 @@
 {
   "compilerOptions": {
+    "target": "es2017",
+    "module": "commonjs",
+    "lib": ["es2017"],
     "outDir": "dist",
+    "rootDir": "src",
+    "strict": true,
     "esModuleInterop": true,
-    "module": "CommonJS",
-    "moduleResolution": "Node",
-    "baseUrl": "src",
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
   },
-  "ts-node": {
-    "esm": true
-  },
+  "include": ["src"]
 }
