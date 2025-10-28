@@ -1,10 +1,11 @@
 import express, { json, Request, Response } from "express";
 import dotenv from "dotenv";
+import authRouter from "./router/auth-router";
 
 dotenv.config();
 const app = express();
 app.use(json());
-
+app.use(authRouter)
 app.get("/health", (req: Request, res: Response) => {
     res.status(200).send("ok!");
 });
