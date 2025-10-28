@@ -12,7 +12,7 @@ export function validateToken(req: Request, res: Response, next: NextFunction) {
   const token = authToken.replace("Bearer ", "");
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET) as { userId: number };
+    const decoded = jwt.verify(token, process.env.JWT_SECRET) as { userId: string };
     res.locals.userId = decoded.userId;
     next();
   } catch (err) {
@@ -29,3 +29,4 @@ export function validateSchema(schema ) {
     next();
   };
 }
+

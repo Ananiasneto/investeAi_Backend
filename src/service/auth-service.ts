@@ -2,6 +2,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { SignInModel, SignUpModel } from "../model/models";
 import { createUserRepository, findUserByEmail } from "../repository/auth-repository";
+import { createInvestidorServices } from "./home-services";
 
 
 export async function createUser(user: SignUpModel) {
@@ -30,9 +31,10 @@ export async function loginUser(userExist: SignInModel) {
   const senha = await bcrypt.compare(userExist.senha, user.senha);
   if (!senha) throw new Error("Senha incorreta");
 
-  const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET || "secret", {
+  const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, {
     expiresIn: "7d",
   });
+
 
   return token;
 }
