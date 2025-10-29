@@ -1,8 +1,8 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import {getInvestidorService } from "../service/home-services"
 import { BadRequestError, NotFoundError } from "../error/errors";
 
-export async function homeGetInvestidor(req: Request, res: Response) {
+export async function homeGetInvestidor(req: Request, res: Response ,next: NextFunction) {
   try {
     const userId = res.locals.userId;
     if(!userId){
@@ -11,6 +11,6 @@ export async function homeGetInvestidor(req: Request, res: Response) {
     const investidor = await getInvestidorService(userId);
     res.status(200).send(investidor);
   } catch (error) {
-    throw new BadRequestError("erro no servidor")
+    next(error);
   }
 }

@@ -1,9 +1,9 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { operationService } from "../service/operation-services";
 import { OperationModel } from "../model/models";
 import { BadRequestError } from "../error/errors";
 
-export async function operationController(req: Request, res: Response) {
+export async function operationController(req: Request, res: Response ,next: NextFunction) {
   try {
     const { tipo } = req.params;
     const { investidorId, papel, quantidade, valor } = req.body;
@@ -19,6 +19,6 @@ export async function operationController(req: Request, res: Response) {
     const operation = await operationService(operationData);
     res.status(200).send(operation);
   } catch (error) {
-    throw new BadRequestError("erro no servidor")
+    next(error);
   }
 }

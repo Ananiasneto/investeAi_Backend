@@ -33,7 +33,7 @@ export function validateSchema(schema: any) {
   return (req: Request, res: Response, next: NextFunction) => {
     const { error } = schema.validate(req.body);
     if (error) {
-        return next(new UnprocessableEntityError(error.message));
+        throw new UnprocessableEntityError(error.message);
     }
     next();
   };
