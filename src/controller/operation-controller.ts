@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { operationService } from "../service/operation-services";
 import { OperationModel } from "../model/models";
+import { BadRequestError } from "../error/errors";
 
 export async function operationController(req: Request, res: Response) {
   try {
@@ -18,6 +19,6 @@ export async function operationController(req: Request, res: Response) {
     const operation = await operationService(operationData);
     res.status(200).send(operation);
   } catch (error) {
-    res.status(500).send(error);
+    throw new BadRequestError("erro no servidor")
   }
 }

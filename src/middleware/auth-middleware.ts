@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import jwt, { JwtPayload } from "jsonwebtoken";
+import { InvalidTokenError, UnauthorizedError, UnprocessableEntityError } from "../error/errors";
 
 interface TokenPayload extends JwtPayload {
   userId: string;
@@ -9,8 +10,7 @@ export function validateToken(req: Request, res: Response, next: NextFunction) {
   const authToken = req.headers.authorization;
 
   if (!authToken) {
-    res.sendStatus(401);
-    return; 
+    throw new UnauthorizedError("Acesso negado");
   }
 
   const token = authToken.replace("Bearer ", "");
@@ -19,13 +19,13 @@ export function validateToken(req: Request, res: Response, next: NextFunction) {
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as TokenPayload;
     
     if (!decoded.userId) {
-      return res.sendStatus(401);
+      throw new InvalidTokenError("Invalid token");
     }
 
     res.locals.userId = decoded.userId;
     next();
   } catch (err: any) {
-    res.status(401).json({ error: true, message: err.message });
+    throw new UnauthorizedError("Acesso negado");
   }
 }
 
@@ -33,7 +33,7 @@ export function validateSchema(schema: any) {
   return (req: Request, res: Response, next: NextFunction) => {
     const { error } = schema.validate(req.body);
     if (error) {
-      return res.status(422).json({ error: true, message: error.details[0].message });
+        return next(new UnprocessableEntityError(error.message));
     }
     next();
   };

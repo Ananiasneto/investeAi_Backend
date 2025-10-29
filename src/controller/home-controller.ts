@@ -1,16 +1,16 @@
 import { Request, Response } from "express";
 import {getInvestidorService } from "../service/home-services"
+import { BadRequestError, NotFoundError } from "../error/errors";
 
 export async function homeGetInvestidor(req: Request, res: Response) {
   try {
     const userId = res.locals.userId;
     if(!userId){
-      return res.status(401).json({ error: "ID do usuário não encontrado" });
+      throw new NotFoundError("usuario não encontrado")
     }
     const investidor = await getInvestidorService(userId);
     res.status(200).send(investidor);
   } catch (error) {
-    console.error("Erro ao buscar investidor:", error);
-    res.status(500).json({ error: "Erro interno" });
+    throw new BadRequestError("erro no servidor")
   }
 }

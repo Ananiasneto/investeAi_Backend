@@ -3,6 +3,7 @@ import { createTransacao } from "../repository/operation-repository";
 import { OperationModel } from "../model/models";
 import { getPreco } from "../utils/brapi";
 import { createAtivo, deleteAtivo, updateAtivo } from "../repository/ative-repository";
+import { BadRequestError, NotFoundError, UnprocessableEntityError } from "../error/errors";
 
 export async function operationService(dataOperation :OperationModel) {
   const { tipo, investidorId, papel, quantidade, valor } = dataOperation;
@@ -10,14 +11,14 @@ export async function operationService(dataOperation :OperationModel) {
   const investidor = await getInvestidorById(investidorId)
 
   if (!investidor) {
-    throw new Error("Investidor não encontrado");
+    throw new NotFoundError("Investidor não encontrado");
   }
 
   let novoSaldo = investidor.saldo;
   let patrimonio = investidor.patrimonio;
 
   if (tipo.toUpperCase() === "APORTE") {
-    if (valor > 10000) throw new Error("Limite de aporte: R$ 10.000");
+    if (valor > 10000) throw new UnprocessableEntityError("Limite de aporte: R$ 10.000");
     novoSaldo += valor;
 
     const result=await createTransacao({
@@ -34,14 +35,14 @@ export async function operationService(dataOperation :OperationModel) {
   }
 
   if (tipo.toUpperCase() === "COMPRA") {
-    if (!papel || !quantidade) throw new Error("Papel e quantidade obrigatórios");
+    if (!papel || !quantidade) throw new UnprocessableEntityError("Papel e quantidade obrigatórios");
 
-    if (quantidade > 1000) throw new Error("Não é possível comprar mais de 1000 papéis de uma vez");
+    if (quantidade > 1000) throw new UnprocessableEntityError("Não é possível comprar mais de 1000 papéis de uma vez");
 
     const valor=await getPreco(papel)
     const totalCompra = valor * quantidade;
 
-    if (totalCompra > novoSaldo) throw new Error("Saldo insuficiente");
+    if (totalCompra > novoSaldo) throw new UnprocessableEntityError("Saldo insuficiente");
 
     novoSaldo -= totalCompra;
     patrimonio += totalCompra;
@@ -65,11 +66,12 @@ export async function operationService(dataOperation :OperationModel) {
   }
 
   if (tipo.toUpperCase() === "VENDA") {
-    if (!papel || !quantidade) throw new Error("Papel e quantidade obrigatórios");
+    if (!papel || !quantidade) throw new UnprocessableEntityError("Papel e quantidade obrigatórios");
     
     const ativoExistente = investidor.ativos.find(a => a.papel === papel);
     if (!ativoExistente || ativoExistente.quantidade < quantidade) {
-      throw new Error("Quantidade indisponível para venda");
+      throw new UnprocessableEntityError("Quantidade indisponível para venda");
+
     }
     const valor=await getPreco(papel)
     const totalVenda = valor * quantidade;
@@ -95,5 +97,5 @@ export async function operationService(dataOperation :OperationModel) {
     return { saldo: novoSaldo, patrimonio, tipo, papel, quantidade };
   }
 
-  throw new Error("Tipo de operação inválido");
+  throw new BadRequestError("Tipo de operação inválido");
 }
