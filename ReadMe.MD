@@ -65,19 +65,6 @@ npm start
 
 ```
 
-🏗️ Arquitetura 
-src/
-├── index.ts              # Inicialização dos middlewares e rotas
-├── server.ts             # Inicialização do servidor
-├── router/               # Definição de rotas
-│   ├── auth-router.ts
-│   ├── operation-router.ts
-│   ├── ative-router.ts
-│   └── home-router.ts
-├── controller/           # Controladores - lógica de requisições
-├── service/              # Regras de negócio
-├── repository/           #repositorios
-
 ## 🎯 Funcionalidades
 
 ### 💵 **APORTE**
