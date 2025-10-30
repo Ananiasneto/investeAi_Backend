@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { operationService } from "../service/operation-services";
 import { OperationModel } from "../model/models";
-import { BadRequestError } from "../error/errors";
+
 
 export async function operationController(req: Request, res: Response ,next: NextFunction) {
   try {
@@ -17,7 +17,7 @@ export async function operationController(req: Request, res: Response ,next: Nex
     };
 
     const operation = await operationService(operationData);
-    res.status(200).send(operation);
+    res.status(201).send(operation);
   } catch (error) {
     next(error);
   }

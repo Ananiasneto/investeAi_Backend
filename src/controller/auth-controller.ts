@@ -1,6 +1,5 @@
 import { NextFunction, Request, Response } from "express";
 import { createUser, loginUser } from "../service/auth-service";
-import { BadRequestError } from "../error/errors";
 
 
 export async function signUp(req: Request, res: Response ,next: NextFunction) {
